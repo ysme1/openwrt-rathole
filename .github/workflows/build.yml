@@ -1,0 +1,136 @@
+name: Build OpenWrt Packages
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Packages (${{ matrix.arch_name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch_name: aarch64
+            openwrt_arch: armsr-armv8-openwrt-25.12
+            rust_target: aarch64-unknown-linux-musl
+
+          - arch_name: x86_64
+            openwrt_arch: x86-64-openwrt-25.12
+            rust_target: x86_64-unknown-linux-musl
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull OpenWrt 25.12 SDK Image
+        id: pull_image
+        run: |
+          IMAGE_TAG="${{ matrix.openwrt_arch }}"
+          if ! docker pull "ghcr.io/openwrt/sdk:$IMAGE_TAG"; then
+            echo "Failed with $IMAGE_TAG, trying SNAPSHOT tag..."
+            IMAGE_TAG="${IMAGE_TAG/openwrt-25.12/25.12-SNAPSHOT}"
+            docker pull "ghcr.io/openwrt/sdk:$IMAGE_TAG"
+          fi
+          echo "sdk_image=ghcr.io/openwrt/sdk:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Build Packages inside OpenWrt SDK
+        env:
+          ARCH_NAME: ${{ matrix.arch_name }}
+          RUST_TARGET: ${{ matrix.rust_target }}
+          SDK_IMAGE: ${{ steps.pull_image.outputs.sdk_image }}
+        run: |
+          set -euo pipefail
+
+          # 确保容器用户对工作区有写权限
+          sudo chmod -R 777 "${GITHUB_WORKSPACE}"
+
+          docker run --rm -i \
+            -v "${GITHUB_WORKSPACE}:/builder/workspace" \
+            -w /builder \
+            -e ARCH_NAME \
+            -e RUST_TARGET \
+            "${SDK_IMAGE}" \
+            bash -s <<'EOF'
+          set -euo pipefail
+
+          # 1. 初始化 SDK 环境
+          [ -d ./scripts ] || [ ! -f ./setup.sh ] || ./setup.sh
+
+          # 2. 安装并配置 Rust
+          if ! command -v cargo >/dev/null 2>&1; then
+              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+              export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          rustup target add "$RUST_TARGET"
+
+          # 3. 导入包定义（rathole 核心包 + luci-app-rathole 界面包）
+          echo "src-link custom /builder/workspace" >> feeds.conf.default
+
+          # 4. 更新 feeds 并激活两个模块
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          echo "CONFIG_PACKAGE_rathole=m" >> .config
+          echo "CONFIG_PACKAGE_luci-app-rathole=m" >> .config
+          make defconfig
+
+          # 5. 编译 rathole 核心包与 luci-app-rathole 界面包
+          echo "--> Compiling rathole APK package..."
+          make package/rathole/compile V=s -j"$(nproc)"
+
+          echo "--> Compiling luci-app-rathole APK package..."
+          make package/luci-app-rathole/compile V=s
+
+          # 6. 导出两个 APK 安装包
+          mkdir -p /builder/workspace/output
+          find bin/packages/ -type f \( -name "*rathole*.apk" -o -name "*luci-app-rathole*.apk" -o -name "*rathole*.ipk" \) -exec cp -v {} /builder/workspace/output/ \;
+          EOF
+
+          # 恢复宿主机文件权限
+          sudo chown -R $(id -u):$(id -g) "${GITHUB_WORKSPACE}"
+
+      - name: List Output Packages
+        run: |
+          echo "=== Exported Packages ==="
+          ls -lh output/
+          test -n "$(find output -maxdepth 1 \( -name '*.apk' -o -name '*.ipk' \) -print -quit)"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luci-app-rathole-${{ matrix.arch_name }}-packages
+          path: output/*
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_files
+          merge-multiple: true
+
+      - name: List Release Packages
+        run: ls -lh release_files/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_files/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

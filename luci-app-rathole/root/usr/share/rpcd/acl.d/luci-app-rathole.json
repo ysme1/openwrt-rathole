@@ -1,0 +1,15 @@
+{
+	"luci-app-rathole": {
+		"description": "Grant UCI and system access for luci-app-rathole",
+		"read": {
+			"uci": [ "rathole" ],
+			"file": {
+				"/var/etc/rathole_client.toml": [ "read" ],
+				"/var/etc/rathole_server.toml": [ "read" ]
+			}
+		},
+		"write": {
+			"uci": [ "rathole" ]
+		}
+	}
+}

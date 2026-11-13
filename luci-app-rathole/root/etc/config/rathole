@@ -1,0 +1,32 @@
+config rathole 'common'
+	option enabled '0'
+	option role 'both'
+	option log_level 'error'
+
+config server 'server'
+	option bind_addr '0.0.0.0:2333'
+	option default_token 'secret_token_123'
+	option heartbeat_interval '30'
+	option transport 'tcp'
+	option nodelay '1'
+
+config client 'client'
+	option remote_addr '127.0.0.1:2333'
+	option default_token 'secret_token_123'
+	option heartbeat_timeout '40'
+	option retry_interval '1'
+	option transport 'tcp'
+	option nodelay '1'
+
+config server_service
+	option name 'ssh'
+	option bind_addr '0.0.0.0:2222'
+	option token ''
+	option type 'tcp'
+
+config client_service
+	option name 'ssh'
+	option local_addr '127.0.0.1:22'
+	option token ''
+	option type 'tcp'
+	option nodelay '1'

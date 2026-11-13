@@ -1,0 +1,120 @@
+<style type="text/css">
+	.rathole-status-box {
+		background: var(--cbi-section-background, #fdfdfd);
+		border: 1px solid var(--cbi-section-border, #e0e0e0);
+		border-radius: 6px;
+		padding: 14px 18px;
+		margin-bottom: 18px;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+	}
+	.rathole-status-title {
+		font-size: 15px;
+		font-weight: 600;
+		margin-bottom: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.rathole-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 12px;
+	}
+	.rathole-card {
+		background: rgba(0, 0, 0, 0.02);
+		border: 1px solid rgba(0, 0, 0, 0.06);
+		border-radius: 5px;
+		padding: 10px 14px;
+	}
+	.rathole-badge {
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		margin-right: 6px;
+		vertical-align: middle;
+	}
+	.badge-running { background-color: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+	.badge-stopped { background-color: #e74c3c; }
+	.badge-disabled { background-color: #95a5a6; }
+	.rathole-warn-box {
+		background: #fff3cd;
+		color: #856404;
+		border: 1px solid #ffeeba;
+		border-radius: 4px;
+		padding: 10px 15px;
+		margin-bottom: 15px;
+		font-size: 13px;
+	}
+</style>
+
+<div class="rathole-status-box">
+	<div class="rathole-status-title">
+		<span>⚡ Rathole <%:Running Status%></span>
+		<span id="rathole-refresh-time" style="font-size: 12px; font-weight: normal; color: #888;"><%:Checking...%></span>
+	</div>
+	<div id="rathole-bin-warning" class="rathole-warn-box" style="display: none;">
+		<strong><%:Warning:%></strong> <%:Executable /usr/bin/rathole was not found! Please install the core package 'rathole' before starting service.%>
+	</div>
+	<div class="rathole-grid">
+		<div class="rathole-card">
+			<div style="font-size: 12px; color: #777; margin-bottom: 4px;"><%:Global Switch%></div>
+			<div id="rathole-global-status" style="font-weight: 600;">
+				<span class="rathole-badge badge-disabled"></span><span><%:Loading...%></span>
+			</div>
+		</div>
+		<div class="rathole-card">
+			<div style="font-size: 12px; color: #777; margin-bottom: 4px;"><%:Server Instance%></div>
+			<div id="rathole-server-status" style="font-weight: 600;">
+				<span class="rathole-badge badge-disabled"></span><span><%:Loading...%></span>
+			</div>
+		</div>
+		<div class="rathole-card">
+			<div style="font-size: 12px; color: #777; margin-bottom: 4px;"><%:Client Instance%></div>
+			<div id="rathole-client-status" style="font-weight: 600;">
+				<span class="rathole-badge badge-disabled"></span><span><%:Loading...%></span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">//<![CDATA[
+	function updateStatus() {
+		XHR.get('<%=url("admin/services/rathole/status")%>', null, function(xhr, data) {
+			if (!data) return;
+			var warnBox = document.getElementById('rathole-bin-warning');
+			if (warnBox) warnBox.style.display = data.binary_exists ? 'none' : 'block';
+
+			var refreshTime = document.getElementById('rathole-refresh-time');
+			if (refreshTime) {
+				var now = new Date();
+				refreshTime.innerHTML = '<%:Last checked:%> ' + now.toLocaleTimeString();
+			}
+
+			var elGlobal = document.getElementById('rathole-global-status');
+			if (elGlobal) {
+				if (data.enabled) elGlobal.innerHTML = '<span class="rathole-badge badge-running"></span><span style="color:#2ecc71;"><%:Enabled%> (' + data.role + ')</span>';
+				else elGlobal.innerHTML = '<span class="rathole-badge badge-disabled"></span><span style="color:#888;"><%:Disabled%></span>';
+			}
+
+			var elServer = document.getElementById('rathole-server-status');
+			if (elServer) {
+				if (data.role === 'client') elServer.innerHTML = '<span class="rathole-badge badge-disabled"></span><span style="color:#999;"><%:Inactive (Client Mode)%></span>';
+				else if (data.server_running) elServer.innerHTML = '<span class="rathole-badge badge-running"></span><span style="color:#2ecc71;"><%:Running%> (PID: ' + data.server_pid + ')</span>';
+				else elServer.innerHTML = '<span class="rathole-badge badge-stopped"></span><span style="color:#e74c3c;"><%:Stopped%></span>';
+			}
+
+			var elClient = document.getElementById('rathole-client-status');
+			if (elClient) {
+				if (data.role === 'server') elClient.innerHTML = '<span class="rathole-badge badge-disabled"></span><span style="color:#999;"><%:Inactive (Server Mode)%></span>';
+				else if (data.client_running) elClient.innerHTML = '<span class="rathole-badge badge-running"></span><span style="color:#2ecc71;"><%:Running%> (PID: ' + data.client_pid + ')</span>';
+				else elClient.innerHTML = '<span class="rathole-badge badge-stopped"></span><span style="color:#e74c3c;"><%:Stopped%></span>';
+			}
+		});
+	}
+
+	window.addEventListener('load', function() {
+		updateStatus();
+		window.setInterval(updateStatus, 4000);
+	});
+//]]></script>

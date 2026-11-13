@@ -1,0 +1,185 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Rathole"
+msgstr "Rathole"
+
+msgid "A lightweight and high-performance reverse proxy for NAT traversal written in Rust."
+msgstr "基于 Rust 编写的高性能内网穿透与反向代理工具。"
+
+msgid "General Settings"
+msgstr "通用设置"
+
+msgid "Server Settings"
+msgstr "服务端设置"
+
+msgid "Client Settings"
+msgstr "客户端设置"
+
+msgid "Rathole - Server Settings"
+msgstr "Rathole - 服务端设置"
+
+msgid "Rathole - Client Settings"
+msgstr "Rathole - 客户端设置"
+
+msgid "Configure Rathole server control tunnel and exposed public services."
+msgstr "配置 Rathole 服务端控制隧道参数与对外暴露的穿透服务。"
+
+msgid "Configure Rathole client remote server connection and local service mappings."
+msgstr "配置 Rathole 客户端连接远端服务端以及本地映射服务。"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Running Mode"
+msgstr "运行模式"
+
+msgid "Both (Client & Server)"
+msgstr "双模式 (同时运行服务端与客户端)"
+
+msgid "Client Only"
+msgstr "仅客户端模式"
+
+msgid "Server Only"
+msgstr "仅服务端模式"
+
+msgid "Log Level"
+msgstr "日志等级"
+
+msgid "Server Basic Settings"
+msgstr "服务端基础设置"
+
+msgid "Control Listen Address"
+msgstr "控制连接监听地址"
+
+msgid "Address and port for control connection between client and server (e.g. 0.0.0.0:2333)"
+msgstr "客户端与服务端建立控制隧道的绑定地址与端口 (例如 0.0.0.0:2333)"
+
+msgid "Default Token"
+msgstr "默认通信 Token"
+
+msgid "Service-level default authentication token. Services without explicit token will inherit this."
+msgstr "服务级别的缺省鉴权令牌，未独立设置 Token 的服务将自动继承此项"
+
+msgid "Heartbeat Interval (seconds)"
+msgstr "心跳发送周期 (秒)"
+
+msgid "Interval for sending application-layer heartbeat to client. Set to 0 to disable, default is 30."
+msgstr "向客户端发送应用层心跳的间隔时间。设为 0 则禁用发送，默认 30 秒"
+
+msgid "Transport Protocol"
+msgstr "传输协议类型"
+
+msgid "TCP NoDelay Mode"
+msgstr "TCP NoDelay 模式"
+
+msgid "Enable to reduce latency, disable to increase throughput."
+msgstr "开启降低延迟，关闭提高单连接吞吐"
+
+msgid "Server Services (Exposed Endpoints)"
+msgstr "服务端暴露服务列表"
+
+msgid "Service Name"
+msgstr "服务标识符"
+
+msgid "Public Bind Address"
+msgstr "公网访客监听地址"
+
+msgid "e.g. 0.0.0.0:2222"
+msgstr "例如 0.0.0.0:2222"
+
+msgid "Custom Token"
+msgstr "独立 Token"
+
+msgid "Leave blank to inherit global default token."
+msgstr "留空则继承全局默认 Token"
+
+msgid "Service Type"
+msgstr "服务协议类型"
+
+msgid "NoDelay"
+msgstr "NoDelay"
+
+msgid "Client Basic Settings"
+msgstr "客户端基础设置"
+
+msgid "Remote Server Address"
+msgstr "远端服务端地址"
+
+msgid "IP/domain and control port of the public Rathole server (e.g. example.com:2333)"
+msgstr "公网 Rathole 服务端的 IP/域名与控制端口 (例如 vcloud.ysme.top:2333)"
+
+msgid "Heartbeat Timeout (seconds)"
+msgstr "心跳超时判定 (秒)"
+
+msgid "Timeout for detecting dead connection. Must be greater than server heartbeat_interval. Set to 0 to disable, default is 40."
+msgstr "心跳超时时间，必须大于服务端的 heartbeat_interval。设为 0 禁用检测，默认 40 秒"
+
+msgid "Retry Interval (seconds)"
+msgstr "断线重连周期 (秒)"
+
+msgid "Interval for reconnecting after connection drop, default is 1."
+msgstr "连接中断后重试连接的间隔时间，默认 1 秒"
+
+msgid "Outbound Proxy (Optional)"
+msgstr "出口代理 (可选)"
+
+msgid "Proxy used when connecting to server, e.g. socks5://127.0.0.1:1080 or http://..."
+msgstr "连接服务端时走的前置代理，支持 socks5://127.0.0.1:1080 或 http://..."
+
+msgid "Client Services (Local Forwarding)"
+msgstr "客户端本地映射列表"
+
+msgid "Local Service Address"
+msgstr "内网服务真实地址"
+
+msgid "e.g. 127.0.0.1:22 or 192.168.1.50:80"
+msgstr "例如 127.0.0.1:22 或 192.168.1.50:80"
+
+msgid "TCP NoDelay"
+msgstr "TCP NoDelay"
+
+msgid "Running Status"
+msgstr "运行状态"
+
+msgid "Checking..."
+msgstr "检查中..."
+
+msgid "Warning:"
+msgstr "警告："
+
+msgid "Executable /usr/bin/rathole was not found! Please install the core package 'rathole' before starting service."
+msgstr "未检测到核心可执行程序 /usr/bin/rathole！启动服务前请确保已安装 rathole 核心包。"
+
+msgid "Global Switch"
+msgstr "总开关"
+
+msgid "Loading..."
+msgstr "加载中..."
+
+msgid "Server Instance"
+msgstr "服务端实例"
+
+msgid "Client Instance"
+msgstr "客户端实例"
+
+msgid "Last checked:"
+msgstr "最近检查时间："
+
+msgid "Enabled"
+msgstr "已启用"
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Inactive (Client Mode)"
+msgstr "未激活 (仅客户端模式)"
+
+msgid "Inactive (Server Mode)"
+msgstr "未激活 (仅服务端模式)"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Stopped"
+msgstr "已停止"
