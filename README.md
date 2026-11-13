@@ -1,4 +1,4 @@
-# luci-app-rathole
+# openwrt-rathole
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![OpenWrt](https://img.shields.io/badge/OpenWrt-21.02%20~%2024.10+-brightgreen.svg)](https://openwrt.org/)
