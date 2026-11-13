@@ -122,15 +122,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release_files
-          merge-multiple: true
 
-      - name: List Release Packages
-        run: ls -lh release_files/
+      - name: Deduplicate and Flatten Release Files
+        run: |
+          mkdir -p final_release
+          # 移动所有带架构名的 rathole 包
+          find release_files -name "rathole-*" -exec cp -n {} final_release/ \;
+          # luci-app-rathole 为全架构通用包（all），只取一份即可
+          find release_files -name "luci-app-rathole-*" | head -n 1 | xargs -I {} cp {} final_release/
+          ls -lh final_release/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release_files/*
+          files: final_release/*
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
