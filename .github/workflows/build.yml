@@ -91,7 +91,8 @@ jobs:
 
           # 6. 导出两个 APK 安装包
           mkdir -p /builder/workspace/output
-          find bin/packages/ -type f \( -name "*rathole*.apk" -o -name "*luci-app-rathole*.apk" -o -name "*rathole*.ipk" \) -exec cp -v {} /builder/workspace/output/ \;
+          find bin/packages/ -type f -name "rathole-*.apk" -exec sh -c 'cp -v "$1" "/builder/workspace/output/$(basename "${1%.apk}")-${ARCH_NAME}.apk"' _ {} \;
+          find bin/packages/ -type f -name "luci-app-rathole-*.apk" -exec cp -v {} /builder/workspace/output/ \;
           EOF
 
           # 恢复宿主机文件权限
